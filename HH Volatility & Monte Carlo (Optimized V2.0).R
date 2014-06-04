@@ -30,7 +30,9 @@ cpi.base.year.end <- as.Date(paste(cpi.base.year,"-12-31",sep=""),"%Y-%m-%d")
 HH_start_date <- "1993-11-01"
 
 # Set working directory path for HH import
-pathdir.hh <- "C:/Users/don.mikalson/Dropbox/Pricing Volatility/Pricing Volatility CEC/WTI Pricing/CSV Files/50 Years/"
+#pathdir.hh <- "C:/Users/don.mikalson/Dropbox/Pricing Volatility/Pricing Volatility CEC/WTI Pricing/CSV Files/50 Years/"
+pathdir <- getwd()
+pathdir.hh <- paste(pathdir, "/WTI Pricing/CSV Files/50 Years", sep="")
 setwd(pathdir.hh)
 # Import HH Historical Prices
 ###hh.spot <- read.csv("cl01.csv")
@@ -72,7 +74,7 @@ if ((month(end(hh.spot.d.m))-month(end(cpi.us.real)))<0){
 } else {daily.diff.mths <- (month(end(hh.spot.d.m))-month(end(cpi.us.real)))}
 
 # Calculate Real Prices
-hh.spot.m.real <- hh.spot.m.nom
+#hh.spot.m.real <- hh.spot.m.nom
 
 # Calculate Nominal prices of the HH prices beyond the CPI index (estimate of the most recent annual inflation)
 annual.infl <- (as.numeric(cpi.us.real[end(cpi.us.real)])-as.numeric(cpi.us.real[as.Date(paste(year(end(cpi.us.real))-1,"-",month(end(cpi.us.real)),"-",day(end(cpi.us.real)),sep=""),,"%Y-%m-%d")]))/100
@@ -119,7 +121,7 @@ title("Gaussian")
 #title("Cauchy")
 
 #### Variance Ratio Test
-hh.real.vrtest <- VR.minus.1(returns(hh.spot.m.real), seq(3,40*12,3))
+hh.real.vrtest <- VR.minus.1(returns(hh.spot.m.real), seq(3,4*12,3))
 n <- which.min((hh.real.vrtest$VR.kvec+1)[2:length(hh.real.vrtest$VR.kvec)])
 hh.real.vrtest2 <- -hh.real.vrtest$VR.kvec+1
 if (n > 2) {hh.real.vrtest2[1:n] <- hh.real.vrtest$VR.kvec[1:n]+1}
@@ -284,6 +286,8 @@ for (i in 1:n) {
 	ln.price.hist.fc.list[[i]] <- rbind(rev(ln.price.fc.ts[1,i]),ln.hh.spot.m.real)
 }
 
+
+#begin slow code
 moving.avg.fc <- 0
 price.fc.v.temp <- 0
 ln.price.v.ts.temp <- 0
@@ -360,6 +364,8 @@ for (i in 1:n) {
 	colnames(ln.price.hist.fc.list[[i]]) <- paste("ln(HH FC ",i,")",sep="")
 	}
 }
+#end slow code
+
 
 color.palate <- c("blue","green","orange","pink","red","purple","thistle","turquoise","grey","brown")
 dev.new()
@@ -394,11 +400,11 @@ print(start.run)
 print(end.run)
 
 #######################################################################################################################################################
-setwd("C:/Users/don.mikalson/Dropbox/Pricing Volatility/Pricing Volatility CEC/WTI Pricing/CSV Files/50 Years")
+#setwd("C:/Users/don.mikalson/Dropbox/Pricing Volatility/Pricing Volatility CEC/WTI Pricing/CSV Files/50 Years")
 write.csv(as.data.frame(as.list(price.hist.fc.list)),file=paste("HH Monte Carlo - ",n," Price Series (",as.character(hh.spot.d[1,1]),").csv",sep=""))
 write.csv(as.data.frame(as.list(price.hist.fc.list)),file=paste("HH Monte Carlo - ",n," Price Series (most recent).csv",sep=""))
 
-setwd("C:/Users/don.mikalson/Dropbox/Pricing Volatility/Pricing Volatility CEC/PDF R-Reports/50 Years")
+setwd(paste(pathdir,"/PDF R-Reports/50 Years",sep="")
 pdf(file="HH Volatility Report.pdf")
 #Plot of Nominal Historical HH
 plot(hh.spot.m.nom,type="l",format="%Y",col="red",main="Historical HH Nominal Prices ($US)",xlab="Time",ylab="$US")
